@@ -28,13 +28,13 @@ class Main:
         while True:
             try:
                 # Change date and/or interval for different time frame
-                klines = self.client.futures_historical_klines(
+                klines = self.client._historical_klines(
                     "ETHUSDT", self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
             except:
                 print('Timeout! Waiting for time binance to respond...')
                 time.sleep(120)
                 print('Trying to connect again...')
-                klines = self.client.futures_historical_klines(
+                klines = self.client._historical_klines(
                     "ETHUSDT", self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
 
             close = []
@@ -107,13 +107,13 @@ class Main:
             time.sleep(1.5)
             try:
                 # Change date and/or interval for different time frame
-                klines = self.client.futures_historical_klines(
+                klines = self.client._historical_klines(
                     "ETHUSDT", self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
             except:
                 print('Timeout! Waiting for time binance to respond...')
                 time.sleep(120)
                 print('Trying to connect again...')
-                klines = self.client.futures_historical_klines(
+                klines = self.client._historical_klines(
                     "ETHUSDT", self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
 
             close = []
