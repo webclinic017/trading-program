@@ -29,13 +29,13 @@ class Main:
             try:
                 # Change date and/or interval for different time frame
                 klines = self.client._historical_klines(
-                    "ETHUSDT", self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    "ETHUSDT", self.client.KLINE_INTERVAL_5MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
             except:
                 print('Timeout! Waiting for time binance to respond...')
                 time.sleep(120)
                 print('Trying to connect again...')
                 klines = self.client._historical_klines(
-                    "ETHUSDT", self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    "ETHUSDT", self.client.KLINE_INTERVAL_5MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
 
             close = []
             high = []
@@ -51,7 +51,7 @@ class Main:
             last_WMSR = talib.WILLR(numpy.asarray(high), numpy.asarray(
                 low), numpy.asarray(close), 14)[-2]
 
-            if last_ROC > 0 and last_WMSR > -50 and (second_last_ROC < 0 or third_last_ROC < 0):
+            if last_ROC > 0 and last_WMSR > -50 and second_last_ROC < 0:
                 self.order_to_track = self.trading.buy(close[len(close)-1])
                 print(last_ROC)
                 print("BUY Order is sent")
@@ -65,7 +65,7 @@ class Main:
                 self.df.to_csv(f'trade_record/trades.csv')
                 self.track_trade()
 
-            elif last_ROC < 0  and last_WMSR < -50 and (second_last_ROC > 0 or third_last_ROC > 0):
+            elif last_ROC < 0  and last_WMSR < -50 and second_last_ROC > 0:
                 self.order_to_track = self.trading.sell(close[len(close)-1])
                 print(last_ROC)
                 print("SELL Order is sent")
@@ -108,13 +108,13 @@ class Main:
             try:
                 # Change date and/or interval for different time frame
                 klines = self.client._historical_klines(
-                    "ETHUSDT", self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    "ETHUSDT", self.client.KLINE_INTERVAL_5MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
             except:
                 print('Timeout! Waiting for time binance to respond...')
                 time.sleep(120)
                 print('Trying to connect again...')
                 klines = self.client._historical_klines(
-                    "ETHUSDT", self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    "ETHUSDT", self.client.KLINE_INTERVAL_5MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
 
             close = []
             high = []
