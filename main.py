@@ -229,7 +229,7 @@ class Main:
     def end_trade(self):
         position = float(self.client.futures_position_information(symbol=self.trade_symbol)[-1][
             'positionAmt'])
-        counter = Stop.stop_loop()
+        counter = Stop().stop_loop()
         if counter > 5:
             time.sleep(3600)
             
