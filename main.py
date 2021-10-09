@@ -1,6 +1,7 @@
 from config import Connect
 from order import Order
 from trade_history import Hist 
+from stop_loop import Stop
 import datetime as dt
 import numpy
 import talib
@@ -14,12 +15,13 @@ class Main:
         print("logged in")
         self.df = pd.DataFrame(columns=['orderID','Time','side','2ndlast_ROC','last_ROC','2ndlast_WMSR', 'last_WMSR','2ndlast_CCI','last_CCI' 'last_price','quantity','profit'])
         self.df.to_csv(f'trade_record/trades.csv')
+        self.trade_symbol = 'ETHUSDT'
         self.start_trade()
 
     def start_trade(self):
         self.df = pd.read_csv(f'trade_record/trades.csv', index_col=0)
         self.trading = Order()
-        position = float(self.client.futures_position_information(symbol='ETHUSDT')[-1][
+        position = float(self.client.futures_position_information(symbol=self.trade_symbol)[-1][
             'positionAmt'])
         if abs(position) > 0:
             self.track_trade()
@@ -29,13 +31,13 @@ class Main:
             try:
                 # Change date and/or interval for different time frame
                 klines = self.client._historical_klines(
-                    "ETHUSDT", self.client.KLINE_INTERVAL_5MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    self.trade_symbol, self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
             except:
                 print('Timeout! Waiting for time binance to respond...')
                 time.sleep(120)
                 print('Trying to connect again...')
                 klines = self.client._historical_klines(
-                    "ETHUSDT", self.client.KLINE_INTERVAL_5MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    self.trade_symbol, self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
 
             close = []
             high = []
@@ -89,7 +91,7 @@ class Main:
 
         self.df = pd.read_csv(f'trade_record/trades.csv', index_col=0)
         print("tracking")
-        position = float(self.client.futures_position_information(symbol='ETHUSDT')[-1][
+        position = float(self.client.futures_position_information(symbol=self.trade_symbol)[-1][
             'positionAmt'])
         if position > 0:
             side = 'BUY'
@@ -108,13 +110,13 @@ class Main:
             try:
                 # Change date and/or interval for different time frame
                 klines = self.client._historical_klines(
-                    "ETHUSDT", self.client.KLINE_INTERVAL_5MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    self.trade_symbol, self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
             except:
                 print('Timeout! Waiting for time binance to respond...')
                 time.sleep(120)
                 print('Trying to connect again...')
                 klines = self.client._historical_klines(
-                    "ETHUSDT", self.client.KLINE_INTERVAL_5MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    self.trade_symbol, self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
 
             close = []
             high = []
@@ -129,29 +131,29 @@ class Main:
                 high), numpy.asarray(low), numpy.asarray(close), 20)[-2]
             second_last_CCI = talib.CCI(numpy.asarray(
                 high), numpy.asarray(low), numpy.asarray(close), 20)[-3]
-            position = float(self.client.futures_position_information(symbol='ETHUSDT')[-1][
+            position = float(self.client.futures_position_information(symbol=self.trade_symbol)[-1][
             'positionAmt'])
-            cost = float(self.client.futures_get_all_orders(symbol='ETHUSDT')[-1]['avgPrice'])
-            id = self.client.futures_get_all_orders(symbol='ETHUSDT')[-1]['orderId']
+            cost = float(self.client.futures_get_all_orders(symbol=self.trade_symbol)[-1]['avgPrice'])
+            id = self.client.futures_get_all_orders(symbol=self.trade_symbol)[-1]['orderId']
             try:
                 self.last_price = self.client.futures_recent_trades(
-                    symbol='ETHUSDT')[-1]['price']
+                    symbol=self.trade_symbol)[-1]['price']
 
             except:
                 print('Timeout! Waiting for binance to respond...')
                 time.sleep(120)
                 print('Trying to connect again...')
                 self.last_price = self.client.futures_recent_trades(
-                    symbol='ETHUSDT')[-1]['price']
+                    symbol=self.trade_symbol)[-1]['price']
 
             try:
                 for i in range(-1, -10, -1):
-                    last_order_status = self.client.futures_get_all_orders(symbol='ETHUSDT')[
+                    last_order_status = self.client.futures_get_all_orders(symbol=self.trade_symbol)[
                         i]['status']
                     if last_order_status != 'FILLED':
                         continue
                     else:
-                        last_order_price = self.client.futures_get_all_orders(symbol='ETHUSDT')[
+                        last_order_price = self.client.futures_get_all_orders(symbol=self.trade_symbol)[
                             i]['avgPrice']
                         break
             except:
@@ -159,12 +161,12 @@ class Main:
                 time.sleep(120)
                 print('Trying to connect again...')
                 for i in range(-1, -10, -1):
-                    last_order_status = self.client.futures_get_all_orders(symbol='ETHUSDT')[
+                    last_order_status = self.client.futures_get_all_orders(symbol=self.trade_symbol)[
                         i]['status']
                     if last_order_status != 'FILLED':
                         continue
                     else:
-                        last_order_price = self.client.futures_get_all_orders(symbol='ETHUSDT')[
+                        last_order_price = self.client.futures_get_all_orders(symbol=self.trade_symbol)[
                             i]['avgPrice']
 
             change = percent_change(
@@ -225,8 +227,12 @@ class Main:
                 print("Current trade profit: ", format(change, '2f'), "%")
 
     def end_trade(self):
-        position = float(self.client.futures_position_information(symbol='ETHUSDT')[-1][
+        position = float(self.client.futures_position_information(symbol=self.trade_symbol)[-1][
             'positionAmt'])
+        counter = Stop.stop_loop()
+        if counter > 5:
+            time.sleep(3600)
+            
         if position > 0:
             side = 'BUY'
         else:
