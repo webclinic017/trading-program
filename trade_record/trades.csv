@@ -1,1 +1,3 @@
-,orderID,Time,side,2ndlast_ROC,last_ROC,2ndlast_WMSR,last_WMSR,2ndlast_CCI,last_CCIlast_price,quantity,profit
+,orderID,Time,side,2ndlast_ROC,last_ROC,2ndlast_WMSR,last_WMSR,2ndlast_CCI,last_CCIlast_price,quantity,profit,last_CCI,last_price
+0,8.389765508689118e+18,2021-10-09 19:30:15.438972,,,0.1725879310536138,,,99.0062044213388,,4.407,-68.39368731000036,124.51680570885644,3610.56
+1,,2021-10-09 20:00:03.665616,SELL,0.1725879310536138,-0.2514143791284562,,-50.416002832359936,,,,,,3598.53
