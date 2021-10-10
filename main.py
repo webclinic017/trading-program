@@ -33,13 +33,13 @@ class Main:
             try:
                 # Change date and/or interval for different time frame
                 klines = self.client._historical_klines(
-                    self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=5)), end_str=str(dt.datetime.now()))
             except:
                 print('Timeout! Waiting for time binance to respond...')
                 time.sleep(120)
                 print('Trying to connect again...')
                 klines = self.client._historical_klines(
-                    self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=5)), end_str=str(dt.datetime.now()))
 
             close = []
             volume = []
@@ -49,7 +49,7 @@ class Main:
 
                 # RSI calculation, change for different strategy or indicator
             last_vma = talib.MA(numpy.asarray(volume), 20)
-            last_vma_ROC = talib.ROC(last_vma, 20)
+            last_vma_ROC = talib.ROC(last_vma, 20)[-2]
 
             print(last_vma)
             print(last_vma_ROC)
@@ -96,13 +96,13 @@ class Main:
             try:
                 # Change date and/or interval for different time frame
                 klines = self.client._historical_klines(
-                    self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=5)), end_str=str(dt.datetime.now()))
             except:
                 print('Timeout! Waiting for time binance to respond...')
                 time.sleep(120)
                 print('Trying to connect again...')
                 klines = self.client._historical_klines(
-                    self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=5)), end_str=str(dt.datetime.now()))
 
             close = []
             volume = []
@@ -112,7 +112,7 @@ class Main:
 
                 # RSI calculation, change for different strategy or indicator
             last_vma = talib.MA(numpy.asarray(volume), 20)
-            last_vma_ROC = talib.ROC(last_vma, 20)
+            last_vma_ROC = talib.ROC(last_vma, 20)[-2]
             position = float(self.client.futures_position_information(symbol=self.trade_symbol)[-1][
                 'positionAmt'])
             cost = float(self.client.futures_get_all_orders(
@@ -186,7 +186,7 @@ class Main:
 
             else:
                 print("position: {}, vma:{}, roc:{}".format(
-                    side, last_vma, last_vma_ROC))
+                    side, last_vma[-2], last_vma_ROC))
                 print("Current trade profit: ", format(change, '2f'), "%")
 
     def end_trade(self):
