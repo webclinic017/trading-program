@@ -1,6 +1,6 @@
 from config import Connect
 from order import Order
-from trade_history import Hist 
+from trade_history import Hist
 from stop_loop import Stop
 import datetime as dt
 import numpy
@@ -8,12 +8,14 @@ import talib
 import time
 import pandas as pd
 
+
 class Main:
     def __init__(self):
 
         self.client = Connect().make_connection()
         print("logged in")
-        self.df = pd.DataFrame(columns=['orderID','Time','side','2ndlast_ROC','last_ROC','2ndlast_WMSR', 'last_WMSR','2ndlast_CCI','last_CCI' 'last_price','quantity','profit'])
+        self.df = pd.DataFrame(columns=['orderID', 'Time', 'side', '2ndlast_ROC', 'last_ROC',
+                               '2ndlast_WMSR', 'last_WMSR', '2ndlast_CCI', 'last_CCI' 'last_price', 'quantity', 'profit'])
         self.df.to_csv(f'trade_record/trades.csv')
         self.trade_symbol = 'ETHUSDT'
         self.start_trade()
@@ -31,61 +33,45 @@ class Main:
             try:
                 # Change date and/or interval for different time frame
                 klines = self.client._historical_klines(
-                    self.trade_symbol, self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
             except:
                 print('Timeout! Waiting for time binance to respond...')
                 time.sleep(120)
                 print('Trying to connect again...')
                 klines = self.client._historical_klines(
-                    self.trade_symbol, self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
 
             close = []
-            high = []
-            low = []
+            volume = []
             for i in klines:
                 close.append(float(i[4]))
-                low.append(float(i[3]))
-                high.append(float(i[2]))
-            # RSI calculation, change for different strategy or indicator
-            last_ROC = talib.ROC(numpy.asarray(close), 9)[-2]
-            second_last_ROC = talib.ROC(numpy.asarray(close), 9)[-3]
-            third_last_ROC = talib.ROC(numpy.asarray(close), 9)[-4]
-            last_WMSR = talib.WILLR(numpy.asarray(high), numpy.asarray(
-                low), numpy.asarray(close), 14)[-2]
+                volume.append(float(i[5]))
 
-            if last_ROC > 0 and last_WMSR > -50 and second_last_ROC < 0:
+                # RSI calculation, change for different strategy or indicator
+            last_vma = talib.MA(numpy.asarray(volume), 20)
+            last_vma_ROC = talib.ROC(last_vma, 20)
+
+            print(last_vma)
+            print(last_vma_ROC)
+
+            if last_vma_ROC > 0:
                 self.order_to_track = self.trading.buy(close[len(close)-1])
-                print(last_ROC)
+                print(last_vma_ROC)
                 print("BUY Order is sent")
-                self.df = self.df.append({'Time': str(dt.datetime.now()),
-                                'side': 'BUY',
-                                'last_ROC': last_ROC,
-                                '2ndlast_ROC':second_last_ROC,
-                                'last_WMSR': last_WMSR,
-                                'last_price':close[-1]
-                                }, ignore_index=True)
-                self.df.to_csv(f'trade_record/trades.csv')
                 self.track_trade()
 
-            elif last_ROC < 0  and last_WMSR < -50 and second_last_ROC > 0:
+            elif last_vma_ROC < 0:
                 self.order_to_track = self.trading.sell(close[len(close)-1])
-                print(last_ROC)
+                print(last_vma_ROC)
                 print("SELL Order is sent")
-                self.df = self.df.append({'Time': str(dt.datetime.now()),
-                                'side': 'SELL',
-                                'last_ROC': last_ROC,
-                                '2ndlast_ROC':second_last_ROC,
-                                'last_WMSR': last_WMSR,
-                                'last_price':close[-1]
-                                }, ignore_index=True)
-                self.df.to_csv(f'trade_record/trades.csv')
                 self.track_trade()
+
             else:
                 time.sleep(1.5)
                 print('No enter points, looking again...')
 
-            print("ROC", last_ROC)
-            print("WMSR", last_WMSR)
+            print("VMA", last_vma)
+            print("ROC(vma)", last_vma_ROC)
 
     def track_trade(self):
 
@@ -110,31 +96,29 @@ class Main:
             try:
                 # Change date and/or interval for different time frame
                 klines = self.client._historical_klines(
-                    self.trade_symbol, self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
             except:
                 print('Timeout! Waiting for time binance to respond...')
                 time.sleep(120)
                 print('Trying to connect again...')
                 klines = self.client._historical_klines(
-                    self.trade_symbol, self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
+                    self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
 
             close = []
-            high = []
-            low = []
+            volume = []
             for i in klines:
                 close.append(float(i[4]))
-                low.append(float(i[3]))
-                high.append(float(i[2])
-                            )
-            last_ROC = talib.ROC(numpy.asarray(close), 9)[-2]
-            last_CCI = talib.CCI(numpy.asarray(
-                high), numpy.asarray(low), numpy.asarray(close), 20)[-2]
-            second_last_CCI = talib.CCI(numpy.asarray(
-                high), numpy.asarray(low), numpy.asarray(close), 20)[-3]
+                volume.append(float(i[5]))
+
+                # RSI calculation, change for different strategy or indicator
+            last_vma = talib.MA(numpy.asarray(volume), 20)
+            last_vma_ROC = talib.ROC(last_vma, 20)
             position = float(self.client.futures_position_information(symbol=self.trade_symbol)[-1][
-            'positionAmt'])
-            cost = float(self.client.futures_get_all_orders(symbol=self.trade_symbol)[-1]['avgPrice'])
-            id = self.client.futures_get_all_orders(symbol=self.trade_symbol)[-1]['orderId']
+                'positionAmt'])
+            cost = float(self.client.futures_get_all_orders(
+                symbol=self.trade_symbol)[-1]['avgPrice'])
+            id = self.client.futures_get_all_orders(
+                symbol=self.trade_symbol)[-1]['orderId']
             try:
                 self.last_price = self.client.futures_recent_trades(
                     symbol=self.trade_symbol)[-1]['price']
@@ -180,33 +164,12 @@ class Main:
                 profit = position*(close[-1]-cost)
 
             # Specify the profit take and stop loss
-            condition1 = (change <= -1 and side == 'BUY')
-            condition2 = (change <= -1 and side == 'SELL')
-            condition3 = (side == 'BUY' and second_last_CCI >
-                          100 and last_CCI < 100)
-            condition4 = (side == 'SELL' and second_last_CCI < -
-                          100 and last_CCI > -100)
-            condition5 = (side == 'BUY' and last_CCI < -100)
-            condition6 = (side == 'SELL' and last_CCI > 100)
+            end_buy_condition = last_vma_ROC < 0
+            end_sell_condition = last_vma_ROC > 0
 
-            if condition1 or condition2 or condition3 or condition4 or condition5 or condition6:
-                print("condition1", condition1)
-                print("condition2", condition2)
-                print("condition3", condition3)
-                print("condition4", condition4)
+            if (side == 'BUY' and end_buy_condition) or (side == 'SELL' and end_sell_condition):
                 self.end_trade()
-                self.df = self.df.append({'Time': str(dt.datetime.now()),
-                                'orderID': id,
-                                'last_ROC': last_ROC,
-                                '2ndlast_CCI': second_last_CCI,
-                                'last_CCI': last_CCI,
-                                'last_price':close[-1],
-                                'quantity': abs(position),
-                                'profit': profit
-                                }, ignore_index=True)
                 print('Current trade ended with profit  of:', change, '%')
-                self.df.to_csv(f'trade_record/trades.csv')
-                Hist().get_trade_hist()
                 time.sleep(1.5)
 
                 try:
@@ -222,8 +185,8 @@ class Main:
                     self.start_trade()
 
             else:
-                print("position: {}, secondlast CCI:{}, last CCI:{}".format(
-                    side, second_last_CCI, last_CCI))
+                print("position: {}, vma:{}, roc:{}".format(
+                    side, last_vma, last_vma_ROC))
                 print("Current trade profit: ", format(change, '2f'), "%")
 
     def end_trade(self):
@@ -232,7 +195,7 @@ class Main:
         counter = Stop().stop_loop()
         if counter > 5:
             time.sleep(3600)
-            
+
         if position > 0:
             side = 'BUY'
         else:

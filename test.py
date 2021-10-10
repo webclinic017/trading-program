@@ -10,6 +10,23 @@ import pandas as pd
 class Kai:
     def __init__(self) -> None:
         self.client = Connect().make_connection()
+        klines = self.client._historical_klines(
+                    'ETHUSDT', self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=5)), end_str=str(dt.datetime.now()))
+        close = []
+        volume = []
+        for i in klines:
+                close.append(float(i[4]))
+                volume.append(float(i[5]))
+
+            # RSI calculation, change for different strategy or indicator
+        last_vma = talib.MA(numpy.asarray(volume), 20)     
+        last_vma_ROC = talib.ROC(last_vma, 20)
+
+        print(last_vma)
+        print(last_vma_ROC)
+         
+        
+        
         # try:
         #     # Change date and/or interval for different time frame
         #     klines = self.client.futures_historical_klines(
@@ -47,11 +64,11 @@ class Kai:
 
     # def hi(self):
     #         quantity = self.quantity
-        orders = self.client.futures_get_all_orders(symbol='ETHUSDT')
-        for order in orders:
-            quantity = order['executedQty']
-            cost = order['avgPrice'] 
-            print()
+        # orders = self.client.futures_get_all_orders(symbol='ETHUSDT')
+        # for order in orders:
+        #     quantity = order['executedQty']
+        #     cost = order['avgPrice'] 
+        #     print()
 
 Kai()
 
