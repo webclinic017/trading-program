@@ -188,8 +188,8 @@ class Main:
                     self.start_trade()
 
             else:
-                print("position: {},entry_price:{}, vma:{}, roc:{}".format(
-                    side, last_order_price, last_vma[-2], last_vma_ROC))
+                print("position:{}, entry_price:{}, current_price:{}, vma:{}, roc:{}".format(
+                    side, last_order_price, self.last_price, last_vma[-2], last_vma_ROC))
                 print("Current trade profit: ", format(change, '2f'), "%")
 
     def end_trade(self):
