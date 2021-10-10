@@ -50,17 +50,18 @@ class Main:
                 # RSI calculation, change for different strategy or indicator
             last_vma = talib.MA(numpy.asarray(volume), 20)
             last_vma_ROC = talib.ROC(last_vma, 20)[-2]
+            last_vma_ROC2 = talib.ROC(last_vma, 20)[-3]
 
             print(last_vma)
             print(last_vma_ROC)
 
-            if last_vma_ROC > 0:
+            if last_vma_ROC2 < 0 and last_vma_ROC > 0:
                 self.order_to_track = self.trading.buy(close[len(close)-1])
                 print(last_vma_ROC)
                 print("BUY Order is sent")
                 self.track_trade()
 
-            elif last_vma_ROC < 0:
+            elif last_vma_ROC2 > 0 and last_vma_ROC < 0:
                 self.order_to_track = self.trading.sell(close[len(close)-1])
                 print(last_vma_ROC)
                 print("SELL Order is sent")
@@ -113,6 +114,8 @@ class Main:
                 # RSI calculation, change for different strategy or indicator
             last_vma = talib.MA(numpy.asarray(volume), 20)
             last_vma_ROC = talib.ROC(last_vma, 20)[-2]
+            last_vma_ROC2 = talib.ROC(last_vma, 20)[-3]
+
             position = float(self.client.futures_position_information(symbol=self.trade_symbol)[-1][
                 'positionAmt'])
             cost = float(self.client.futures_get_all_orders(
@@ -164,8 +167,8 @@ class Main:
                 profit = position*(close[-1]-cost)
 
             # Specify the profit take and stop loss
-            end_buy_condition = last_vma_ROC < 0
-            end_sell_condition = last_vma_ROC > 0
+            end_buy_condition = last_vma_ROC2 > 0 and last_vma_ROC < 0
+            end_sell_condition = last_vma_ROC2 < 0 and last_vma_ROC > 0 
 
             if (side == 'BUY' and end_buy_condition) or (side == 'SELL' and end_sell_condition):
                 self.end_trade()
