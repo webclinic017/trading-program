@@ -169,8 +169,8 @@ class Main:
             # Specify the profit take and stop loss
             end_buy_condition = last_vma_ROC2 > 0 and last_vma_ROC < 0
             end_sell_condition = last_vma_ROC2 < 0 and last_vma_ROC > 0
-
-            if (side == 'BUY' and end_buy_condition) or (side == 'SELL' and end_sell_condition):
+            end_condition = change < -1.5
+            if (side == 'BUY' and end_buy_condition) or (side == 'SELL' and end_sell_condition) or end_condition:
                 self.end_trade()
                 print('Current trade ended with profit  of:', change, '%')
                 time.sleep(1.5)
