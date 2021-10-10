@@ -168,7 +168,7 @@ class Main:
 
             # Specify the profit take and stop loss
             end_buy_condition = last_vma_ROC2 > 0 and last_vma_ROC < 0
-            end_sell_condition = last_vma_ROC2 < 0 and last_vma_ROC > 0 
+            end_sell_condition = last_vma_ROC2 < 0 and last_vma_ROC > 0
 
             if (side == 'BUY' and end_buy_condition) or (side == 'SELL' and end_sell_condition):
                 self.end_trade()
@@ -188,8 +188,8 @@ class Main:
                     self.start_trade()
 
             else:
-                print("position: {}, vma:{}, roc:{}".format(
-                    side, last_vma[-2], last_vma_ROC))
+                print("position: {},entry_price:{}, vma:{}, roc:{}".format(
+                    side, last_order_price, last_vma[-2], last_vma_ROC))
                 print("Current trade profit: ", format(change, '2f'), "%")
 
     def end_trade(self):

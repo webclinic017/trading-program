@@ -58,3 +58,4 @@ class Hist:
 
 
 
+Hist()
