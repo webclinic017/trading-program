@@ -40,26 +40,30 @@ class Main:
                 print('Trying to connect again...')
                 klines = self.client._historical_klines(
                     self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=5)), end_str=str(dt.datetime.now()))
-
             close = []
-            volume = []
             for i in klines:
                 close.append(float(i[4]))
-                volume.append(float(i[5]))
 
-                # RSI calculation, change for different strategy or indicator
-            last_vma = talib.MA(numpy.asarray(volume), 20)
-            last_vma_ROC = talib.ROC(last_vma, 20)[-2]
-            last_vma_ROC2 = talib.ROC(last_vma, 20)[-3]
+            close_arr = numpy.asarray(close)
 
+            close_rsi = talib.RSI(close_arr, 14)
+            max_rsi = talib.MAX(close_rsi, 14)
+            min_rsi = talib.MIN(close_rsi, 14)
 
+            stochrsi = (close_rsi - min_rsi)/(max_rsi - min_rsi)
+            k = talib.SMA(stochrsi, 3)*100
+            d = talib.SMA(k, 3)
+            buy_condition1 = k[-3] < d[-3] and k[-2] > d[-2]
+            buy_condition2 = k[-3] < 25
+            sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
+            sell_condition2 = k[-3] > 75
 
-            if last_vma_ROC2 < 0 and last_vma_ROC > 0:
+            if buy_condition1 and buy_condition2:
                 self.order_to_track = self.trading.buy(close[len(close)-1])
                 print("BUY Order is sent")
                 self.track_trade()
 
-            elif last_vma_ROC2 > 0 and last_vma_ROC < 0:
+            elif sell_condition1 and sell_condition2:
                 self.order_to_track = self.trading.sell(close[len(close)-1])
                 print("SELL Order is sent")
                 self.track_trade()
@@ -68,10 +72,8 @@ class Main:
                 time.sleep(1.5)
                 print('No enter points, looking again...')
 
-            print("last_VMA",last_vma[-2])
-            print("last_ROC",last_vma_ROC)
-            print("last_ROC",last_vma_ROC2)
-
+            print("last_k", k[-2])
+            print("last_d", d[-2])
 
     def track_trade(self):
 
@@ -104,20 +106,11 @@ class Main:
                 klines = self.client._historical_klines(
                     self.trade_symbol, self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=5)), end_str=str(dt.datetime.now()))
 
-            close = []
-            volume = []
-            for i in klines:
-                close.append(float(i[4]))
-                volume.append(float(i[5]))
-
                 # RSI calculation, change for different strategy or indicator
 
             position = float(self.client.futures_position_information(symbol=self.trade_symbol)[-1][
                 'positionAmt'])
-            cost = float(self.client.futures_get_all_orders(
-                symbol=self.trade_symbol)[-1]['avgPrice'])
-            id = self.client.futures_get_all_orders(
-                symbol=self.trade_symbol)[-1]['orderId']
+
             try:
                 self.last_price = self.client.futures_recent_trades(
                     symbol=self.trade_symbol)[-1]['price']
@@ -155,22 +148,31 @@ class Main:
             change = percent_change(
                 last_order_price, self.last_price)
             if(side == 'SELL'):
-
                 change = change*-1
                 print(change)
-                profit = position*(close[-1]-cost)
-            else:
-                profit = position*(close[-1]-cost)
 
-            last_vma = talib.MA(numpy.asarray(volume), 20)
-            last_vma_ROC = talib.ROC(last_vma, 20)[-2]
-            last_vma_ROC2 = talib.ROC(last_vma, 20)[-3]
+
+            close = []
+            for i in klines:
+                close.append(float(i[4]))
+
+            close_arr = numpy.asarray(close)
+
+            close_rsi = talib.RSI(close_arr, 14)
+            max_rsi = talib.MAX(close_rsi, 14)
+            min_rsi = talib.MIN(close_rsi, 14)
+
+            stochrsi = (close_rsi - min_rsi)/(max_rsi - min_rsi)
+            k = talib.SMA(stochrsi, 3)*100
+            d = talib.SMA(k, 3)
+            buy_condition1 = k[-3] < d[-3] and k[-2] > d[-2]
+            buy_condition2 = k[-3] < 25
+            sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
+            sell_condition2 = k[-3] > 75
 
             # Specify the profit take and stop loss
-            end_buy_condition = last_vma_ROC2 > 0 and last_vma_ROC < 0
-            end_sell_condition = last_vma_ROC2 < 0 and last_vma_ROC > 0
-            end_condition = change < -1.5
-            if (side == 'BUY' and end_buy_condition) or (side == 'SELL' and end_sell_condition) or end_condition:
+            end_condition = change < -5
+            if (side == 'BUY' and sell_condition1 and sell_condition2) or (side == 'SELL' and buy_condition1 and buy_condition2) or end_condition:
                 self.end_trade()
                 print('Current trade ended with profit  of:', change, '%')
                 time.sleep(1.5)
@@ -188,8 +190,8 @@ class Main:
                     self.start_trade()
 
             else:
-                print("position:{}, entry_price:{}, current_price:{}, vma:{}, roc:{}".format(
-                    side, last_order_price, self.last_price, last_vma[-2], last_vma_ROC))
+                print("position:{}, entry_price:{}, current_price:{}, k:{}, d:{}".format(
+                    side, last_order_price, self.last_price, k[-2], d[-2]))
                 print("Current trade profit: ", format(change, '2f'), "%")
 
     def end_trade(self):

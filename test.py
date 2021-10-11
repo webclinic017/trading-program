@@ -11,21 +11,34 @@ class Kai:
     def __init__(self) -> None:
         self.client = Connect().make_connection()
         klines = self.client._historical_klines(
-                    'ETHUSDT', self.client.KLINE_INTERVAL_30MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=5)), end_str=str(dt.datetime.now()))
+                    'ETHUSDT', self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=5)), end_str=str(dt.datetime.now()))
         close = []
+        high = []
+        low = []
         volume = []
+        df = pd.DataFrame(klines).to_csv('kline.csv')
+
         for i in klines:
                 close.append(float(i[4]))
-                volume.append(float(i[5]))
+                high.append(float(i[2]))
+                low.append(float(i[3]))
 
-            # RSI calculation, change for different strategy or indicator
-        last_vma = talib.MA(numpy.asarray(volume), 20)     
-        last_vma_ROC = talib.ROC(last_vma, 20)
-
-        print(last_vma)
-        print(last_vma_ROC)
-         
+        close = numpy.asarray(close)
+        high = numpy.asarray(high)
+        low = numpy.asarray(low)
         
+        close_rsi = talib.RSI(close, 14)
+        max_rsi = talib.MAX(close_rsi, 14)
+        min_rsi = talib.MIN(close_rsi, 14)
+
+        stochrsi = (close_rsi - min_rsi)/(max_rsi - min_rsi)
+        k = talib.SMA(stochrsi,3)*100
+        d = talib.SMA(k,3)*100
+
+        
+        # print(max_rsi[-2])
+        # print(min_rsi[-2])
+        # print(close_rsi[-2])
         
         # try:
         #     # Change date and/or interval for different time frame
