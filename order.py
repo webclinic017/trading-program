@@ -8,11 +8,14 @@ class Order:
     def __init__(self):
         self.client = Connect().make_connection()
         self.client.futures_change_leverage(symbol='ETHUSDT', leverage=50)
-        balance = float(self.client.futures_account_balance()[1]['balance'])
+        total_balance = self.client.futures_account_balance()
+        for coin in total_balance:
+            if coin['asset'] == 'USDT':
+                balance = float(coin['balance'])
         eth_last_price = float(self.client.futures_recent_trades(
                     symbol='ETHUSDT')[-1]['price'])
         klines = self.client._historical_klines(
-                    'ETHUSDT', self.client.KLINE_INTERVAL_1DAY, start_str=str(dt.datetime.now()-dt.timedelta(days=30)), end_str=str(dt.datetime.now()))
+                    'ETHUSDT', self.client.KLINE_INTERVAL_1DAY, start_str=str(dt.datetime.now()-dt.timedelta(days=60)), end_str=str(dt.datetime.now()))
         close = []
         for i in klines:
             close.append(float(i[4]))
@@ -41,17 +44,18 @@ class Order:
         print (buy_quantity)
         print(sell_quantity)
         
-        self.sell_quantity = round(float(balance*50/eth_last_price*sell_quantity),2)
-        self.buy_quantity = round(float(balance*50/eth_last_price*buy_quantity),2)
+        self.sell_quan = round(float(balance*50/(eth_last_price*sell_quantity)),2)
+        self.buy_quan = round(float(balance*50/(eth_last_price*buy_quantity)),2)
 
-
+        print(self.sell_quan)
+        print(self.buy_quan)
     def sell(self, last_price):
 
         order = self.client.futures_create_order(
         symbol='ETHUSDT',
         type=self.client.ORDER_TYPE_MARKET,
         side=self.client.SIDE_SELL,
-        quantity= self.sell_quantity,
+        quantity= self.sell_quan,
         isIsolated='TRUE'
         )
         
@@ -64,7 +68,7 @@ class Order:
         symbol='ETHUSDT',
         type=self.client.ORDER_TYPE_MARKET,
         side=self.client.SIDE_BUY,
-        quantity= self.buy_quantity,
+        quantity= self.buy_quan,
         isIsolated='TRUE'
         )
         

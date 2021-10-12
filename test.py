@@ -10,35 +10,11 @@ import pandas as pd
 class Kai:
     def __init__(self) -> None:
         self.client = Connect().make_connection()
-        klines = self.client._historical_klines(
-                    'ETHUSDT', self.client.KLINE_INTERVAL_1DAY, start_str=str(dt.datetime.now()-dt.timedelta(days=50)), end_str=str(dt.datetime.now()))
-        close = []
-        for i in klines:
-            close.append(float(i[4]))
-
-        close_arr = numpy.asarray(close)
-        close_rsi = talib.RSI(close_arr, 14)
-        max_rsi = talib.MAX(close_rsi, 14)
-        min_rsi = talib.MIN(close_rsi, 14)
-        stochrsi = (close_rsi - min_rsi)/(max_rsi - min_rsi)
-        k = talib.SMA(stochrsi, 3)*100
-        d = talib.SMA(k, 3)
-        if k[-2]<d[-2]:
-            buy_quantity = 0.05
-            sell_quantity = 0.1
-        elif k[2]>d[-2]:
-            sell_quantity = 0.05
-            buy_quantity = 0.1
-        else:
-            sell_quantity = 0.1
-            buy_quantity = 0.1
-            
-        # print(close)
-        print("k",k[-3])
-        print("d",d[-3])
-        print (buy_quantity)
-        print(sell_quantity)
-        
+        total_balance = self.client.futures_account_balance()
+        for coin in total_balance:
+            if coin['asset'] == 'USDT':
+                balance = coin['balance']
+        print(balance)
         # print(max_rsi[-2])
         # print(min_rsi[-2])
         # print(close_rsi[-2])
