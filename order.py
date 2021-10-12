@@ -12,7 +12,7 @@ class Order:
         eth_last_price = float(self.client.futures_recent_trades(
                     symbol='ETHUSDT')[-1]['price'])
         klines = self.client._historical_klines(
-                    self.trade_symbol, self.client.KLINE_INTERVAL_1DAY, start_str=str(dt.datetime.now()-dt.timedelta(days=30)), end_str=str(dt.datetime.now()))
+                    'ETHUSDT', self.client.KLINE_INTERVAL_1DAY, start_str=str(dt.datetime.now()-dt.timedelta(days=30)), end_str=str(dt.datetime.now()))
         close = []
         for i in klines:
             close.append(float(i[4]))
