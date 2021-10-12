@@ -11,30 +11,33 @@ class Kai:
     def __init__(self) -> None:
         self.client = Connect().make_connection()
         klines = self.client._historical_klines(
-                    'ETHUSDT', self.client.KLINE_INTERVAL_1HOUR, start_str=str(dt.datetime.now()-dt.timedelta(days=5)), end_str=str(dt.datetime.now()))
+                    'ETHUSDT', self.client.KLINE_INTERVAL_1DAY, start_str=str(dt.datetime.now()-dt.timedelta(days=50)), end_str=str(dt.datetime.now()))
         close = []
-        high = []
-        low = []
-        volume = []
-        df = pd.DataFrame(klines).to_csv('kline.csv')
-
         for i in klines:
-                close.append(float(i[4]))
-                high.append(float(i[2]))
-                low.append(float(i[3]))
+            close.append(float(i[4]))
 
-        close = numpy.asarray(close)
-        high = numpy.asarray(high)
-        low = numpy.asarray(low)
-        
-        close_rsi = talib.RSI(close, 14)
+        close_arr = numpy.asarray(close)
+        close_rsi = talib.RSI(close_arr, 14)
         max_rsi = talib.MAX(close_rsi, 14)
         min_rsi = talib.MIN(close_rsi, 14)
-
         stochrsi = (close_rsi - min_rsi)/(max_rsi - min_rsi)
-        k = talib.SMA(stochrsi,3)*100
-        d = talib.SMA(k,3)*100
-
+        k = talib.SMA(stochrsi, 3)*100
+        d = talib.SMA(k, 3)
+        if k[-2]<d[-2]:
+            buy_quantity = 0.05
+            sell_quantity = 0.1
+        elif k[2]>d[-2]:
+            sell_quantity = 0.05
+            buy_quantity = 0.1
+        else:
+            sell_quantity = 0.1
+            buy_quantity = 0.1
+            
+        # print(close)
+        print("k",k[-3])
+        print("d",d[-3])
+        print (buy_quantity)
+        print(sell_quantity)
         
         # print(max_rsi[-2])
         # print(min_rsi[-2])
