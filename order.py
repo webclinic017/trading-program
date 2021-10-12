@@ -9,7 +9,7 @@ class Order:
         balance = float(self.client.futures_account_balance()[1]['balance'])
         eth_last_price = float(self.client.futures_recent_trades(
                     symbol='ETHUSDT')[-1]['price'])
-        self.my_quantity = round(float(balance*50/eth_last_price*0.18),2)
+        self.my_quantity = round(float(balance*50/eth_last_price*0.15),2)
 
     def sell(self, last_price):
 
