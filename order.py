@@ -27,7 +27,7 @@ class Order:
         stochrsi = (close_rsi - min_rsi)/(max_rsi - min_rsi)
         k = talib.SMA(stochrsi, 3)*100
         d = talib.SMA(k, 3)
-        quantity = 0.15
+        quantity = 0.35
         if k[-2]<d[-2]:
             buy_quantity = quantity/2
             sell_quantity = quantity
@@ -41,11 +41,11 @@ class Order:
         # print(close)
         print("k",k[-3])
         print("d",d[-3])
-        print (buy_quantity)
-        print(sell_quantity)
+        print ("buy quantity",buy_quantity)
+        print("sell quantity",sell_quantity)
         
-        self.sell_quan = round(float(balance*50/(eth_last_price*sell_quantity)),2)
-        self.buy_quan = round(float(balance*50/(eth_last_price*buy_quantity)),2)
+        self.sell_quan = round(float(balance*50/eth_last_price*sell_quantity),2)
+        self.buy_quan = round(float(balance*50/eth_last_price*buy_quantity),2)
 
         print(self.sell_quan)
         print(self.buy_quan)
