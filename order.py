@@ -1,3 +1,4 @@
+from functools import reduce
 from config import Connect
 import datetime as dt
 import talib
@@ -7,18 +8,16 @@ import numpy
 class Order:
     def __init__(self):
         self.client = Connect().make_connection()
-        self.client.futures_change_leverage(symbol='ETHUSDT', leverage=50)
-        total_balance = self.client.futures_account_balance()
-        for coin in total_balance:
-            if coin['asset'] == 'USDT':
-                balance = float(coin['balance'])
-        eth_last_price = float(self.client.futures_recent_trades(
-                    symbol='ETHUSDT')[-1]['price'])
-        klines = self.client._historical_klines(
-                    'ETHUSDT', self.client.KLINE_INTERVAL_1DAY, start_str=str(dt.datetime.now()-dt.timedelta(days=60)), end_str=str(dt.datetime.now()))
+        # leverage = self.client.LinearPositions.LinearPositions_saveLeverage(symbol="ETHUSDT", buy_leverage=50, sell_leverage=50).result()
+        balance = self.client.Wallet.Wallet_getBalance(coin="USDT").result()[0]['result']['USDT']['equity']
+        eth_last_price = float(self.client.LinearMarket.LinearMarket_trading(symbol="ETHUSDT").result()[0]['result'][0]['price'])
+        
+        ##### Extract Klines data 
+        date_before = int((dt.datetime.now() - dt.timedelta(days = 40)).timestamp())
+        klines=(self.client.LinearKline.LinearKline_get(symbol="ETHUSDT", interval="D", **{'from':date_before}).result()[0]['result'])
         close = []
         for i in klines:
-            close.append(float(i[4]))
+            close.append(float(i['close']))
 
         close_arr = numpy.asarray(close)
         close_rsi = talib.RSI(close_arr, 14)
@@ -49,48 +48,51 @@ class Order:
 
         print(self.sell_quan)
         print(self.buy_quan)
-    def sell(self, last_price):
 
-        order = self.client.futures_create_order(
-        symbol='ETHUSDT',
-        type=self.client.ORDER_TYPE_MARKET,
-        side=self.client.SIDE_SELL,
-        quantity= self.sell_quan,
-        isIsolated='TRUE'
-        )
+    def sell(self):
+
+        order = self.client.LinearOrder.LinearOrder_new(
+            side="Sell",
+            symbol="ETHUSDT",
+            order_type="Market",
+            qty=self.sell_quan,
+            time_in_force="GoodTillCancel",
+            reduce_only=False,
+            close_on_trigger=False).result()
         
         return(order)
 
 
-    def buy(self, last_price):
+    def buy(self):
 
-        order = self.client.futures_create_order(
-        symbol='ETHUSDT',
-        type=self.client.ORDER_TYPE_MARKET,
-        side=self.client.SIDE_BUY,
-        quantity= self.buy_quan,
-        isIsolated='TRUE'
-        )
+        order = self.client.LinearOrder.LinearOrder_new(
+            side="Buy",
+            symbol="ETHUSDT",
+            order_type="Market",
+            qty=self.buy_quan,
+            time_in_force="GoodTillCancel",
+            reduce_only=False,
+            close_on_trigger=False).result()
         
         return(order)
         
     def close_order(self, qty, side):
 
         if side == "BUY":
-            order = self.client.futures_create_order(
+            order = self.client.LinearOrder.LinearOrder_new(
             symbol='ETHUSDT',
-            side=self.client.SIDE_SELL,
-            type=self.client.ORDER_TYPE_MARKET,
+            side="Sell",
+            type="Market",
             quantity=qty,
-            isIsolated='TRUE',
-            sideEffectType='AUTO_REPAY'
+            reduce_only=False,
+            close_on_trigger=False
             )
         elif side == "SELL":
-            order = self.client.futures_create_order(
+            order = self.client.LinearOrder.LinearOrder_new(
             symbol='ETHUSDT',
-            side=self.client.SIDE_BUY,
-            type=self.client.ORDER_TYPE_MARKET,
+            side="Buy",
+            type="Market",
             quantity=qty,
-            isIsolated='TRUE',
-            sideEffectType='AUTO_REPAY'
+            reduce_only=False,
+            close_on_trigger=False
             )

@@ -7,60 +7,34 @@ import talib
 import time
 import pandas as pd
 
-class Kai:
-    def __init__(self) -> None:
-        self.client = Connect().make_connection()
-        total_balance = self.client.futures_account_balance()
-        for coin in total_balance:
-            if coin['asset'] == 'USDT':
-                balance = coin['balance']
-        print(balance)
-        # print(max_rsi[-2])
-        # print(min_rsi[-2])
-        # print(close_rsi[-2])
-        
-        # try:
-        #     # Change date and/or interval for different time frame
-        #     klines = self.client.futures_historical_klines(
-        #         "BTCUSDT", self.client.KLINE_INTERVAL_5MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
-        # except:
-        #     print('Timeout! Waiting for time binance to respond...')
-        #     time.sleep(120)
-        #     print('Trying to connect again...')
-        #     klines = self.client.futures_historical_klines(
-        #         "BTCUSDT", self.client.KLINE_INTERVAL_5MINUTE, start_str=str(dt.datetime.now()-dt.timedelta(days=1)), end_str=str(dt.datetime.now()))
 
-        # df = pd.DataFrame(klines)
-        # df.to_csv('on92.csv')
+# class Kai:
+#     def __init__(self) -> None:
+        # self.client = Connect().make_connection()
+        # date_before = int((dt.datetime.now() - dt.timedelta(days = 5)).timestamp())
+        # # print(date_before)
+        # klines=(self.client.LinearKline.LinearKline_get(symbol="ETHUSDT", interval="60", **{'from':date_before}).result()[0]['result'])
+        # close = []
+        # for i in klines:
+        #     close.append(float(i['close']))
 
-        # for i in range(-1,-10,-1):
-        #     print(i)
-        #     last_order_status = self.client.futures_get_all_orders(symbol = 'BTCUSDT')[i]['status']
-        #     print(last_order_status)
-        #     if last_order_status != 'FILLED':
-        #         continue
-        #     else:
-        #         last_order_price = self.client.futures_get_all_orders(symbol = 'BTCUSDT')[i]['avgPrice']
-        #         break
-        # print (last_order_status+last_order_price)
-        # position = self.client.futures_position_information(symbol='BTCUSDT')[-1]['positionAmt']
-        # print (position)
+        # print(close)
+        # print(klines[0]['result'][-4])
+        # position = (self.client.LinearPositions.LinearPositions_myPosition(symbol="ETHUSDT").result()[0]['result'][0]['size'])
+        # print(position)
+        # leverage = self.client.LinearPositions.LinearPositions_saveLeverage(symbol="ETHUSDT", buy_leverage=50, sell_leverage=50).result()
+        # balance = self.client.Wallet.Wallet_getBalance(coin="USDT").result()[0]['result']['USDT']['equity']
+        # print(self.client.LinearMarket.LinearMarket_trading(symbol="ETHUSDT").result()[0]['result'][0]['price'])
 
-    #     balance = float(self.client.futures_account_balance()[1]['balance'])
-    #     print(balance)
-    #     eth_last_price = float(self.client.futures_recent_trades(
-    #                 symbol='ETHUSDT')[-1]['price'])
-    #     print(eth_last_price)
-    #     self.quantity = round(float(balance*50/eth_last_price*0.35),2)
-    #     self.hi()
+        # entry_price = self.client.LinearPositions.LinearPositions_myPosition(symbol="ETHUSDT").result()[0]['result'][0]['entry_price'])
+        # self.last_price = self.client.LinearMarket.LinearMarket_trading(
+        #             symbol="ETHUSDT").result()[0]['result'][0]['price']
 
-    # def hi(self):
-    #         quantity = self.quantity
-        # orders = self.client.futures_get_all_orders(symbol='ETHUSDT')
-        # for order in orders:
-        #     quantity = order['executedQty']
-        #     cost = order['avgPrice'] 
-        #     print()
 
-Kai()
+        # sell_entry_price = self.client.LinearPositions.LinearPositions_myPosition(
+        #             symbol="ETHUSDT").result()[0]['result'][1]['entry_price']
 
+
+        # print(self.last_price)
+        # print(last_order_price)
+# Kai()
