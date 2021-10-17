@@ -126,7 +126,7 @@ class Main:
             sell_condition2 = k[-3] > 75
 
             # Specify the profit take and stop loss
-            end_condition = change < -1
+            end_condition = change < -1.5
             if (side == 'BUY' and sell_condition1 and sell_condition2) or (side == 'SELL' and buy_condition1 and buy_condition2) or end_condition:
                 self.end_trade()
                 print('Current trade ended with profit  of:', change, '%')
