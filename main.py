@@ -126,7 +126,7 @@ class Main:
             sell_condition2 = k[-3] > 75
 
             # Specify the profit take and stop loss
-            end_condition = change < -3
+            end_condition = change < -2
             if (side == 'BUY' and sell_condition1 and sell_condition2) or (side == 'SELL' and buy_condition1 and buy_condition2) or end_condition:
                 self.end_trade()
                 print('Current trade ended with profit  of:', change, '%')
@@ -153,8 +153,8 @@ class Main:
         sell_position = (self.client.LinearPositions.LinearPositions_myPosition(
             symbol="ETHUSDT").result()[0]['result'][1]['size'])
 
-        counter = Stop.stop_loop()
-        if counter > 5:
+        counter = Stop().stop_loop()
+        if counter > 30:
             time.sleep(3600)
 
         if abs(buy_position) > 0:
@@ -164,7 +164,7 @@ class Main:
         elif abs(sell_position) > 0:
             side = 'SELL'
             self.trading.close_order(
-                abs(sell_position), side)
+               abs(sell_position), side)
         print('End. Order finished successfully')
 
 

@@ -8,7 +8,7 @@ import time
 import pandas as pd
 
 
-class Stop():
+class Stop:
     def __init__(self) -> None:
         self.client = Connect().make_connection()
         self.orders = self.client.LinearExecution.LinearExecution_getTrades(
@@ -16,11 +16,10 @@ class Stop():
         self.stop_loop()
 
     def stop_loop(self):
-        tstamp1 = int((dt.datetime.now() - dt.timedelta(hours=1)).timestamp())
+        tstamp1 = int((dt.datetime.now() - dt.timedelta(minutes=5)).timestamp())
         counter = 0
         for order in self.orders:
             if int(order['trade_time']) > tstamp1:
-                print(order)
                 counter += 1
 
         return counter

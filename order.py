@@ -26,20 +26,18 @@ class Order:
         stochrsi = (close_rsi - min_rsi)/(max_rsi - min_rsi)
         k = talib.SMA(stochrsi, 3)*100
         d = talib.SMA(k, 3)
-        quantity = 0.2 
+        quantity = 0.2
         if k[-1]<d[-1]:
-            buy_quantity = quantity*0.7
+            buy_quantity = quantity*0.8
             sell_quantity = quantity
         elif k[-1]>d[-1]:
-            sell_quantity = quantity*0.7
+            sell_quantity = quantity*0.8
             buy_quantity = quantity
         else:
             sell_quantity = quantity
             buy_quantity = quantity
 
         # print(close)
-        print("k",k[-3])
-        print("d",d[-3])
         print ("buy quantity",buy_quantity)
         print("sell quantity",sell_quantity)
         
@@ -80,19 +78,21 @@ class Order:
 
         if side == "BUY":
             order = self.client.LinearOrder.LinearOrder_new(
-            symbol='ETHUSDT',
             side="Sell",
-            type="Market",
-            quantity=qty,
-            reduce_only=False,
+            symbol="ETHUSDT",
+            order_type="Market",
+            qty=qty,
+            time_in_force="GoodTillCancel",
+            reduce_only=True,
             close_on_trigger=False
-            )
+            ).result()
         elif side == "SELL":
             order = self.client.LinearOrder.LinearOrder_new(
-            symbol='ETHUSDT',
             side="Buy",
-            type="Market",
-            quantity=qty,
-            reduce_only=False,
+            symbol="ETHUSDT",
+            order_type="Market",
+            qty=qty,
+            time_in_force="GoodTillCancel",
+            reduce_only=True,
             close_on_trigger=False
-            )
+            ).result()
