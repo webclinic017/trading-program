@@ -1,7 +1,7 @@
 from binance.client import Client
 from config import Connect
 from order import Order
-import datetime as dt
+from datetime import datetime
 import numpy
 import talib
 import time
@@ -34,35 +34,26 @@ class Kai:
         # sell_entry_price = self.client.LinearPositions.LinearPositions_myPosition(
         #             symbol="ETHUSDT").result()[0]['result'][1]['entry_price']
 
-
-        # print(self.last_price)
-        # print(last_order_price)
-        date_before = int((dt.datetime.now() - dt.timedelta(days = 60)).timestamp())
-        klines=(self.client.LinearKline.LinearKline_get(symbol="ETHUSDT", interval="D", **{'from':date_before}).result()[0]['result'])
-        close = []
-        for i in klines:
-            close.append(float(i['close']))
-
-        close_arr = numpy.asarray(close)
-        close_rsi = talib.RSI(close_arr, 14)
-        max_rsi = talib.MAX(close_rsi, 14)
-        min_rsi = talib.MIN(close_rsi, 14)
-        stochrsi = (close_rsi - min_rsi)/(max_rsi - min_rsi)
-        k = talib.SMA(stochrsi, 3)*100
-        d = talib.SMA(k, 3)
-        quantity = 0.2 
-        if k[-1]<d[-1]:
-            buy_quantity = quantity*0.7
-            sell_quantity = quantity
-        elif k[-1]>d[-1]:
-            sell_quantity = quantity*0.7
-            buy_quantity = quantity
-        else:
-            sell_quantity = quantity
-            buy_quantity = quantity
-
-        # print(close)
-        print("k",k)
-        print("d",d)
-        print(close)
+        list = self.client.LinearPositions.LinearPositions_closePnlRecords(symbol="ETHUSDT").result()[0]['result']['data']
+        df = pd.DataFrame([])
+        for i in list:
+            df = df.append({
+                "created_at": datetime.fromtimestamp(i['created_at']),
+                 "id": i['id'],
+                 "symbol": "ETHUSDT",
+                 "order_id": i['order_id'],
+                 "side": i['side'],
+                 "qty": i['qty'],
+                 "closed_size": i['closed_size'],    
+                 "avg_entry_price": i['avg_entry_price'],    
+                 "avg_exit_price": i['avg_exit_price'],    
+                 "cum_entry_value": i['cum_entry_value'],   
+                 "cum_exit_value": i['cum_exit_value'],  
+                 "closed_pnl": i['closed_pnl'],   
+                 "fill_count": i['fill_count'],           
+                 "leverage": i['leverage']
+             }, ignore_index=True
+            )
+        df.to_csv('trade_record.csv')
+        print(list)
 Kai()
