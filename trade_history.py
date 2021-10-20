@@ -12,50 +12,32 @@ from datetime import datetime
 class Hist:
     def __init__(self) -> None:
         self.client = Connect().make_connection()
-        self.df = pd.DataFrame(columns=['orderID', 'Time', 'side','last_price', 'quantity', 'profit','balance'])
-        self.df.to_csv(f'trade_record/trade_record.csv')
-
         self.get_trade_hist()
 
     def get_trade_hist(self):
-            self.df = pd.read_csv(f'trade_record/trade_record.csv', index_col=0)
-            trades = self.client.futures_account_trades(symbol='ETHUSDT')
-            temp_orderId = "0"
-            orderId = []
-            orders = self.client.futures_get_all_orders(symbol='ETHUSDT')
-            balance = float(self.client.futures_account_balance()[1]['balance'])
-            
-            for trade in trades:
-                trade_timestamp = int(trade['time']/1000)
-                trade_time = datetime.fromtimestamp(trade_timestamp).strftime('%Y-%m-%d')
-                today_time = dt.datetime.today().strftime('%Y-%m-%d')
-                trade_time_record = datetime.fromtimestamp(trade_timestamp).strftime('%Y-%m-%d, %H:%M:%S')
-                if trade_time==today_time:
-                    if temp_orderId != trade['orderId']:
-                        
-                        temp_orderId = trade['orderId']
-                        realizedPnl = float(trade['realizedPnl'])
-                        orderId.append(temp_orderId)
-                        for order in orders:
-                            if order['orderId'] == temp_orderId: 
-                                quantity = order['executedQty']
-                                last_price = order['avgPrice'] 
-                                side = order['side']
-
-                        self.df = self.df.append({'Time': trade_time_record,
-                                    'orderID': temp_orderId,
-                                    'side': side,
-                                    'last_price': last_price,
-                                    'quantity': quantity,
-                                    'profit': realizedPnl,
-                                    'balance':balance
-                                    }, ignore_index=True)
-                    else:
-                        realizedPnl += float(trade['realizedPnl'])
-                        self.df.loc[self.df['orderID']==temp_orderId, 'profit'] = realizedPnl
-            
-            self.df.to_csv(f'trade_record/trade_record_{today_time}.csv')
-
-
+        list = self.client.LinearPositions.LinearPositions_closePnlRecords(symbol="ETHUSDT").result()[0]['result']['data']
+        df = pd.DataFrame([])
+        today_time = dt.datetime.today().strftime('%Y-%m-%d')
+        for i in list:
+            df = df.append({
+                "created_at": datetime.fromtimestamp(i['created_at']),
+                 "id": i['id'],
+                 "symbol": "ETHUSDT",
+                 "order_id": i['order_id'],
+                 "side": i['side'],
+                 "qty": i['qty'],
+                 "closed_size": i['closed_size'],    
+                 "avg_entry_price": i['avg_entry_price'],    
+                 "avg_exit_price": i['avg_exit_price'],    
+                 "cum_entry_value": i['cum_entry_value'],   
+                 "cum_exit_value": i['cum_exit_value'],  
+                 "closed_pnl": i['closed_pnl'],   
+                 "fill_count": i['fill_count'],           
+                 "leverage": i['leverage']
+             }, ignore_index=True
+            )
+        df.to_csv(f'trade_record/trade_record_{today_time}.csv')
+        print(list)
+        df.to_csv(f'trade_record/trade_record_{today_time}.csv')
 
 Hist()

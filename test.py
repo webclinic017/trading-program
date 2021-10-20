@@ -36,6 +36,7 @@ class Kai:
 
         list = self.client.LinearPositions.LinearPositions_closePnlRecords(symbol="ETHUSDT").result()[0]['result']['data']
         df = pd.DataFrame([])
+        today_time = dt.datetime.today().strftime('%Y-%m-%d')
         for i in list:
             df = df.append({
                 "created_at": datetime.fromtimestamp(i['created_at']),
@@ -54,6 +55,6 @@ class Kai:
                  "leverage": i['leverage']
              }, ignore_index=True
             )
-        df.to_csv('trade_record.csv')
+        df.to_csv(f'trade_record/trade_record_{today_time}.csv')
         print(list)
 Kai()
