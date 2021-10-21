@@ -41,12 +41,12 @@ class Main:
             sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
             # sell_condition2 = k[-3] > 75
 
-            if buy_condition1 and buy_condition2:
+            if buy_condition1 :
                 self.order_to_track = self.trading.buy()
                 print("BUY Order is sent")
                 self.track_trade()
 
-            elif sell_condition1 and sell_condition2:
+            elif sell_condition1 :
                 self.order_to_track = self.trading.sell()
                 print("SELL Order is sent")
                 self.track_trade()
@@ -127,7 +127,7 @@ class Main:
 
             # Specify the profit take and stop loss
             end_condition = change < -1
-            if (side == 'BUY' and sell_condition1 and sell_condition2) or (side == 'SELL' and buy_condition1 and buy_condition2) or end_condition:
+            if (side == 'BUY' and sell_condition1) or (side == 'SELL' and buy_condition1) or end_condition:
                 self.end_trade()
                 print('Current trade ended with profit  of:', change, '%')
                 time.sleep(1.5)
