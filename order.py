@@ -28,10 +28,10 @@ class Order:
         d = talib.SMA(k, 3)
         quantity = 0.16
         if k[-1]<d[-1]:
-            buy_quantity = quantity*0.65
+            buy_quantity = quantity*0.8
             sell_quantity = quantity
         elif k[-1]>d[-1]:
-            sell_quantity = quantity*0.65
+            sell_quantity = quantity*0.8
             buy_quantity = quantity
         else:
             sell_quantity = quantity
