@@ -37,9 +37,9 @@ class Main:
             k = Strategy().condition(self.client)[0]
             d = Strategy().condition(self.client)[1]
             buy_condition1 = k[-3] < d[-3] and k[-2] > d[-2]
-            # buy_condition2 = k[-3] < 25
+            buy_condition2 = k[-3] < 25
             sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
-            # sell_condition2 = k[-3] > 75
+            sell_condition2 = k[-3] > 75
 
             if buy_condition1 :
                 self.order_to_track = self.trading.buy()
@@ -115,15 +115,15 @@ class Main:
                 entry_price, last_price)
 
             if(side == 'SELL'):
-                change = change*-1
+                change = change*-1.5
 
             k = Strategy().condition(self.client)[0]
             d = Strategy().condition(self.client)[1]
 
             buy_condition1 = k[-3] < d[-3] and k[-2] > d[-2]
-            # buy_condition2 = k[-3] < 25
+            buy_condition2 = k[-3] < 25
             sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
-            # sell_condition2 = k[-3] > 75
+            sell_condition2 = k[-3] > 75
 
             # Specify the profit take and stop loss
             end_condition = change < -1
