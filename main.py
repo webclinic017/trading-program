@@ -131,11 +131,24 @@ class Main:
 
             end_buy_condition1 = short_rsi[-3]>long_rsi[-3] and short_rsi[-2]<long_rsi[-2]
             end_sell_condition1 = short_rsi[-3]<long_rsi[-3] and short_rsi[-2]>long_rsi[-2]
-
+            ######
+            time_list = []
+            self.orders = self.client.LinearExecution.LinearExecution_getTrades(
+                symbol="ETHUSDT").result()[0]['result']['data']
+            for order in self.orders:
+                time_list.append(order['trade_time'])
+            
+            tstamp1=int(time_list[0])
+            tstamp2=int(dt.datetime.now().timestamp())
+            time1 = dt.datetime.fromtimestamp(tstamp1)
+            time2 = dt.datetime.fromtimestamp(tstamp2)
+            time_difference = time2 - time1
+            time_diff_hour =time_difference.total_seconds()/3600
+            end_condtion2= time_diff_hour>2
 
             # Specify the profit take and stop loss
             end_condition = change < -1.5
-            if (side == 'BUY' and end_buy_condition1) or (side == 'SELL' and end_sell_condition1) or end_condition:
+            if (side == 'BUY' and end_buy_condition1 and end_condtion2) or (side == 'SELL' and end_sell_condition1 and end_condtion2) or end_condition:
                 self.end_trade()
                 print('Current trade ended with profit  of:', change, '%')
                 time.sleep(1.5)

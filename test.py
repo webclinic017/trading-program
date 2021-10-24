@@ -57,28 +57,48 @@ class Kai:
         #     )
         # df.to_csv(f'trade_record/trade_record_{today_time}.csv')
         # print(list)
-        date_before = int(
-            (dt.datetime.now() - dt.timedelta(days=5)).timestamp())
-        try:
-            # Change date and/or interval for different time frame
-            klines = (self.client.LinearKline.LinearKline_get(
-                symbol="ETHUSDT", interval="60", **{'from': date_before}).result()[0]['result'])
-        except:
-            print('Timeout! Waiting for time binance to respond...')
-            time.sleep(120)
-            print('Trying to connect again...')
-            klines = (self.client.LinearKline.LinearKline_get(
-                symbol="ETHUSDT", interval="60", **{'from': date_before}).result()[0]['result'])
-        close = []
-        for i in klines:
-            close.append(float(i['close']))
+        # date_before = int(
+        #     (dt.datetime.now() - dt.timedelta(days=4)).timestamp())
+        # try:
+        #     # Change date and/or interval for different time frame
+        #     klines = (self.client.LinearKline.LinearKline_get(
+        #         symbol="ETHUSDT", interval="60", **{'from': date_before}).result()[0]['result'])
+        # except:
+        #     print('Timeout! Waiting for time binance to respond...')
+        #     time.sleep(120)
+        #     print('Trying to connect again...')
+        #     klines = (self.client.LinearKline.LinearKline_get(
+        #         symbol="ETHUSDT", interval="60", **{'from': date_before}).result()[0]['result'])
+        # close = []
+        # open_time=[]
+        # for i in klines:
+        #     close.append(float(i['close']))
+        #     open_time.append(float(i['open_time']))
 
-        close_arr = numpy.asarray(close)
+        # close_arr = numpy.asarray(close)
+        # open_time_arr = numpy.asarray(open_time)
 
-        short_rsi = talib.RSI(close_arr, 7)
-        long_rsi = talib.RSI(close_arr, 14)
+        # short_rsi = talib.RSI(close_arr, 7)
+        # long_rsi = talib.RSI(close_arr, 14)
 
-        print(short_rsi)
-        print(long_rsi)
 
+        # df = pd.DataFrame(open_time_arr)
+        # df.to_csv("time.csv")
+        # print(long_rsi)
+
+        time_list = []
+        self.orders = self.client.LinearExecution.LinearExecution_getTrades(
+            symbol="ETHUSDT").result()[0]['result']['data']
+        for order in self.orders:
+            time_list.append(order['trade_time'])
+        
+        tstamp1=int(time_list[0])
+        tstamp2=int(dt.datetime.now().timestamp())
+        time1 = dt.datetime.fromtimestamp(tstamp1)
+        time2 = dt.datetime.fromtimestamp(tstamp2)
+        time_difference = time2 - time1
+        time_diff_hour =time_difference.total_seconds()/3600
+        end_condtion2= time_diff_hour>2
+        print(time_diff_hour)
+        
 Kai()
