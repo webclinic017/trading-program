@@ -26,7 +26,7 @@ class Order:
         stochrsi = (close_rsi - min_rsi)/(max_rsi - min_rsi)
         k = talib.SMA(stochrsi, 3)*100
         d = talib.SMA(k, 3)
-        quantity = 0.07
+        quantity = 0.08
         if k[-1]<d[-1]:
             buy_quantity = quantity*0.7
             sell_quantity = quantity
