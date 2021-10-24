@@ -7,7 +7,7 @@ import talib
 import time
 import pandas as pd
 from strategy import Strategy
-
+from rsiCross import RSICross
 
 class Main:
     def __init__(self):
@@ -70,9 +70,13 @@ class Main:
             symbol="ETHUSDT").result()[0]['result'][1]['size'])
         if buy_position > 0:
             side = 'BUY'
+            position_size=buy_position
         elif sell_position > 0:
             side = 'SELL'
+            position_size=sell_position
+
         # How much price changed in % based on current price and order price
+        
 
         def percent_change(original, new):
 
@@ -117,17 +121,21 @@ class Main:
             if(side == 'SELL'):
                 change = change*-1
 
-            k = Strategy().condition(self.client)[0]
-            d = Strategy().condition(self.client)[1]
+            short_rsi = RSICross().condition(self.client)[0]
+            long_rsi = RSICross().condition(self.client)[1]
 
-            buy_condition1 = k[-3] < d[-3] and k[-2] > d[-2]
-            buy_condition2 = k[-3] < 25
-            sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
-            sell_condition2 = k[-3] > 75
+            # buy_condition1 = k[-3] < d[-3] and k[-2] > d[-2]
+            # buy_condition2 = k[-3] < 25
+            # sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
+            # sell_condition2 = k[-3] > 75
+
+            end_buy_condition1 = short_rsi[-3]>long_rsi[-3] and short_rsi[-2]<long_rsi[-2]
+            end_sell_condition1 = short_rsi[-3]<long_rsi[-3] and short_rsi[-2]>long_rsi[-2]
+
 
             # Specify the profit take and stop loss
             end_condition = change < -1.5
-            if (side == 'BUY' and sell_condition1 and sell_condition2) or (side == 'SELL' and buy_condition1 and buy_condition2) or end_condition:
+            if (side == 'BUY' and end_buy_condition1) or (side == 'SELL' and end_sell_condition1) or end_condition:
                 self.end_trade()
                 print('Current trade ended with profit  of:', change, '%')
                 time.sleep(1.5)
@@ -142,8 +150,8 @@ class Main:
 
             else:
                 print('****************************************************')
-                print("position:{}, entry_price:{}, current_price:{}, k:{}, d:{}".format(
-                    side, entry_price, last_price, k[-2], d[-2]))
+                print("position:{}, entry_price:{}, current_price:{}, position_size:{}, Rsi[7]:{}, Rsi[14]:{}".format(
+                    side, entry_price, last_price, position_size, short_rsi[-1], long_rsi[-1]))
                 print("Current trade profit: ", format(change, '2f'), "%")
 
     ######end trade###########
