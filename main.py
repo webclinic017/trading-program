@@ -135,7 +135,7 @@ class Main:
             
 
             # Specify the profit take and stop loss
-            end_condition = change < -1
+            end_condition = change < -0.5
             if (side == 'BUY' and sell_condition1) or (side == 'SELL' and buy_condition1) or end_condition:
                 self.end_trade()
                 print('Current trade ended with profit  of:', change, '%')
