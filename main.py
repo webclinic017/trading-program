@@ -134,6 +134,8 @@ class Main:
             d = Strategy().condition(self.client)[1]
 
             buy_condition1 = k[-3] < d[-3] and k[-2] > d[-2]
+            buy_condition2 = k[-3] < 25
+            sell_condition2 =  k[-3]>75
             sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
 
             ######
@@ -145,8 +147,8 @@ class Main:
             
 
             # Specify the profit take and stop loss
-            end_condition = change < -1.5
-            if (side == 'BUY' and sell_condition1) or (side == 'SELL' and buy_condition1) or end_condition:
+            end_condition = change < -2
+            if (side == 'BUY' and sell_condition1 and sell_condition2) or (side == 'SELL' and buy_condition1 and buy_condition2) or end_condition:
                 self.end_trade()
                 print('Current trade ended with profit  of:', change, '%')
                 time.sleep(1.5)
