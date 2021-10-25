@@ -33,6 +33,12 @@ class Main:
 
 ##########GET Klines Data#############
         while True:
+            buy_position = (self.client.LinearPositions.LinearPositions_myPosition(
+                symbol="ETHUSDT").result()[0]['result'][0]['size'])
+            sell_position = (self.client.LinearPositions.LinearPositions_myPosition(
+                symbol="ETHUSDT").result()[0]['result'][1]['size'])
+            if (buy_position>0 or sell_position>0):
+                self.track_trade()
 
             k = Strategy().condition(self.client)[0]
             d = Strategy().condition(self.client)[1]
@@ -117,9 +123,13 @@ class Main:
 
             change = percent_change(
                 entry_price, last_price)
+            liquid_price = round(entry_price*0.995,2)
 
             if(side == 'SELL'):
                 change = change*-1
+                liquid_price = round(entry_price*1.005,2)
+
+
             k = Strategy().condition(self.client)[0]
             d = Strategy().condition(self.client)[1]
 
@@ -152,7 +162,7 @@ class Main:
             else:
                 print('****************************************************')
                 print("position:{}, entry_price:{}, current_price:{}, liquidation_price:{}, position_size:{}, last_k > last_d:{}, k > d:{}".format(
-                    side, entry_price, last_price, position_size, entry_price*(1+change) ,k[-3]>d[-3],k[-2]>d[-2] ))
+                    side, entry_price, last_price, liquid_price,position_size ,k[-3]>d[-3],k[-2]>d[-2] ))
                 print("Current trade profit: ", format(change, '2f'), "%")
 
     ######end trade###########

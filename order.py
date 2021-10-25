@@ -13,7 +13,7 @@ class Order:
         eth_last_price = float(self.client.LinearMarket.LinearMarket_trading(symbol="ETHUSDT").result()[0]['result'][0]['price'])
         
         ##### Extract Klines data 
-        date_before = int((dt.datetime.now() - dt.timedelta(days = 40)).timestamp())
+        date_before = int((dt.datetime.now() - dt.timedelta(days = 60)).timestamp())
         klines=(self.client.LinearKline.LinearKline_get(symbol="ETHUSDT", interval="D", **{'from':date_before}).result()[0]['result'])
         close = []
         for i in klines:
@@ -38,8 +38,8 @@ class Order:
             buy_quantity = quantity
 
         # print(close)
-        print ("buy quantity",buy_quantity)
-        print("sell quantity",sell_quantity)
+        print ("buy quantity",k[-1])
+        print("sell quantity",d[-1])
         
         self.sell_quan = round(float(balance*50/eth_last_price*sell_quantity),2)
         self.buy_quan = round(float(balance*50/eth_last_price*buy_quantity),2)
