@@ -86,19 +86,56 @@ class Kai:
         # df.to_csv("time.csv")
         # print(long_rsi)
 
-        time_list = []
-        self.orders = self.client.LinearExecution.LinearExecution_getTrades(
-            symbol="ETHUSDT").result()[0]['result']['data']
-        for order in self.orders:
-            time_list.append(order['trade_time'])
+        # time_list = []
+        # self.orders = self.client.LinearExecution.LinearExecution_getTrades(
+        #     symbol="ETHUSDT").result()[0]['result']['data']
+        # for order in self.orders:
+        #     time_list.append(order['trade_time'])
         
-        tstamp1=int(time_list[0])
-        tstamp2=int(dt.datetime.now().timestamp())
-        time1 = dt.datetime.fromtimestamp(tstamp1)
-        time2 = dt.datetime.fromtimestamp(tstamp2)
-        time_difference = time2 - time1
-        time_diff_hour =time_difference.total_seconds()/3600
-        end_condtion2= time_diff_hour>2
-        print(time_diff_hour)
+        # tstamp1=int(time_list[0])
+        # tstamp2=int(dt.datetime.now().timestamp())
+        # time1 = dt.datetime.fromtimestamp(tstamp1)
+        # time2 = dt.datetime.fromtimestamp(tstamp2)
+        # time_difference = time2 - time1
+        # time_diff_hour =time_difference.total_seconds()/3600
+        # end_condtion2= time_diff_hour>2
+        # print(time_diff_hour)
         
+        date_before = int(
+            (dt.datetime.now() - dt.timedelta(days=5)).timestamp())
+        try:
+            # Change date and/or interval for different time frame
+            klines = (self.client.LinearKline.LinearKline_get(
+                symbol="ETHUSDT", interval="60", **{'from': date_before}).result()[0]['result'])
+        except:
+            print('Timeout! Waiting for time binance to respond...')
+            time.sleep(120)
+            print('Trying to connect again...')
+            klines = (self.client.LinearKline.LinearKline_get(
+                symbol="ETHUSDT", interval="60", **{'from': date_before}).result()[0]['result'])
+        close = []
+        high = []
+        low = []
+
+        for i in klines:
+            close.append(float(i['close']))
+            high.append(float(i['high']))
+            low.append(float(i['low']))
+
+        close_arr = numpy.asarray(close)
+        high_arr = numpy.asarray(high)
+        low_arr = numpy.asarray(low)
+
+        k, d = talib.STOCH(high_arr, low_arr, close_arr, fastk_period=14, slowk_period=5, slowk_matype=0, slowd_period=5, slowd_matype=0)
+
+        return k, d
+
+            # tstamp1=int(time_list[0])
+            # tstamp2=int(dt.datetime.now().timestamp())
+            # time1 = dt.datetime.fromtimestamp(tstamp1)
+            # time2 = dt.datetime.fromtimestamp(tstamp2)
+            # time_difference = time2 - time1
+            # time_diff_hour =time_difference.total_seconds()/3600
+            # end_condtion2= time_diff_hour>2
+
 Kai()

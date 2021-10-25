@@ -120,17 +120,12 @@ class Main:
 
             if(side == 'SELL'):
                 change = change*-1
+            k = Strategy().condition(self.client)[0]
+            d = Strategy().condition(self.client)[1]
 
-            short_rsi = RSICross().condition(self.client)[0]
-            long_rsi = RSICross().condition(self.client)[1]
+            buy_condition1 = k[-3] < d[-3] and k[-2] > d[-2]
+            sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
 
-            # buy_condition1 = k[-3] < d[-3] and k[-2] > d[-2]
-            # buy_condition2 = k[-3] < 25
-            # sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
-            # sell_condition2 = k[-3] > 75
-
-            end_buy_condition1 = short_rsi[-3]>long_rsi[-3] and short_rsi[-2]<long_rsi[-2]
-            end_sell_condition1 = short_rsi[-3]<long_rsi[-3] and short_rsi[-2]>long_rsi[-2]
             ######
             time_list = []
             self.orders = self.client.LinearExecution.LinearExecution_getTrades(
@@ -138,17 +133,10 @@ class Main:
             for order in self.orders:
                 time_list.append(order['trade_time'])
             
-            tstamp1=int(time_list[0])
-            tstamp2=int(dt.datetime.now().timestamp())
-            time1 = dt.datetime.fromtimestamp(tstamp1)
-            time2 = dt.datetime.fromtimestamp(tstamp2)
-            time_difference = time2 - time1
-            time_diff_hour =time_difference.total_seconds()/3600
-            end_condtion2= time_diff_hour>2
 
             # Specify the profit take and stop loss
-            end_condition = change < -1.5
-            if (side == 'BUY' and end_buy_condition1 and end_condtion2) or (side == 'SELL' and end_sell_condition1 and end_condtion2) or end_condition:
+            end_condition = change < -1.2
+            if (side == 'BUY' and sell_condition1) or (side == 'SELL' and buy_condition1) or end_condition:
                 self.end_trade()
                 print('Current trade ended with profit  of:', change, '%')
                 time.sleep(1.5)
@@ -163,8 +151,8 @@ class Main:
 
             else:
                 print('****************************************************')
-                print("position:{}, entry_price:{}, current_price:{}, position_size:{}, Rsi[7]:{}, Rsi[14]:{}".format(
-                    side, entry_price, last_price, position_size, short_rsi[-1], long_rsi[-1]))
+                print("position:{}, entry_price:{}, current_price:{}, position_size:{}, last_k > last_d:{}, k > d:{}".format(
+                    side, entry_price, last_price, position_size, k[-3]>d[-3],k[-2]>d[-2] ))
                 print("Current trade profit: ", format(change, '2f'), "%")
 
     ######end trade###########
