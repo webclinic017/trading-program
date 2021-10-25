@@ -151,8 +151,8 @@ class Main:
 
             else:
                 print('****************************************************')
-                print("position:{}, entry_price:{}, current_price:{}, position_size:{}, last_k > last_d:{}, k > d:{}".format(
-                    side, entry_price, last_price, position_size, k[-3]>d[-3],k[-2]>d[-2] ))
+                print("position:{}, entry_price:{}, current_price:{}, liquidation_price:{}, position_size:{}, last_k > last_d:{}, k > d:{}".format(
+                    side, entry_price, last_price, position_size, entry_price*(1+change) ,k[-3]>d[-3],k[-2]>d[-2] ))
                 print("Current trade profit: ", format(change, '2f'), "%")
 
     ######end trade###########
