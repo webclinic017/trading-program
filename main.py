@@ -42,9 +42,10 @@ class Main:
 
             k = Strategy().condition(self.client)[0]
             d = Strategy().condition(self.client)[1]
-            buy_condition1 = k[-3] < 50 and k[-2] > 50
-            sell_condition1 = k[-3] > 50 and k[-2] <50
-
+            buy_condition1 = k[-3] < d[-3] and k[-2] > d[-3]
+            sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
+            print(k[-2])
+            print(k[-3])
             if buy_condition1 :
                 self.order_to_track = self.trading.buy()
                 print("BUY Order is sent")
@@ -143,7 +144,7 @@ class Main:
             
 
             # Specify the profit take and stop loss
-            end_condition = change < -1
+            end_condition = change < -1.5
             if (side == 'BUY' and sell_condition1) or (side == 'SELL' and buy_condition1) or end_condition:
                 self.end_trade()
                 print('Current trade ended with profit  of:', change, '%')
