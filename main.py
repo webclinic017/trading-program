@@ -44,8 +44,6 @@ class Main:
             buy_condition1 = mom_k[-3] < 0 and mom_k[-2] > 0
             sell_condition1 = mom_k[-3] > 0 and mom_k[-2] < 0
 
-            print(mom_k[-2])
-            print(mom_k[-3])
             if buy_condition1:
                 self.order_to_track = self.trading.buy()
                 print("BUY Order is sent")
@@ -127,12 +125,8 @@ class Main:
 
 
             mom_k = Strategy().condition(self.client)
-            print(mom_k)
             buy_condition1 = mom_k[-3] < 0 and mom_k[-2] > 0
             sell_condition1 = mom_k[-3] > 0 and mom_k[-2] < 0
-
-            print(mom_k[-2])
-            print(mom_k[-3])
 
             ######
             time_list = []
