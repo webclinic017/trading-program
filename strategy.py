@@ -32,6 +32,14 @@ class Strategy():
         high_arr = numpy.asarray(high)
         low_arr = numpy.asarray(low)
 
-        k, d = talib.STOCH(high_arr, low_arr, close_arr, fastk_period=14, slowk_period=5, slowk_matype=0, slowd_period=5, slowd_matype=0)
+        # k, d = talib.STOCH(high_arr, low_arr, close_arr, fastk_period=14, slowk_period=5, slowk_matype=0, slowd_period=5, slowd_matype=0)
+        close_rsi = talib.RSI(close_arr, 14)
+        max_rsi = talib.MAX(close_rsi, 14)
+        min_rsi = talib.MIN(close_rsi, 14)
+        stochrsi = (close_rsi - min_rsi)/(max_rsi - min_rsi)
+        k = talib.SMA(stochrsi, 3)*100
+        d = talib.SMA(k, 3)
 
-        return k, d
+        mom_k = talib.MOM(k,10)
+
+        return mom_k

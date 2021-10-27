@@ -40,20 +40,18 @@ class Main:
             if (buy_position>0 or sell_position>0):
                 self.track_trade()
 
-            k = Strategy().condition(self.client)[0]
-            d = Strategy().condition(self.client)[1]
-            buy_condition1 = k[-3] < d[-3] and k[-2] > d[-3]
-            buy_condition2 = k[-3] > 25
-            sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
-            sell_condition2 = k[-3] > 75
-            print(k[-2])
-            print(k[-3])
-            if buy_condition1 and buy_condition2:
+            mom_k = Strategy().condition(self.client)
+            buy_condition1 = mom_k[-3] < 0 and mom_k[-2] > 0
+            sell_condition1 = mom_k[-3] > 0 and mom_k[-2] < 0
+
+            print(mom_k[-2])
+            print(mom_k[-3])
+            if buy_condition1:
                 self.order_to_track = self.trading.buy()
                 print("BUY Order is sent")
                 self.track_trade()
 
-            elif sell_condition1 and sell_condition2:
+            elif sell_condition1:
                 self.order_to_track = self.trading.sell()
                 print("SELL Order is sent")
                 self.track_trade()
@@ -61,9 +59,6 @@ class Main:
             else:
                 time.sleep(1.5)
                 print('No enter points, looking again...')
-
-            print("last_k", k[-2])
-            print("last_d", d[-2])
 
 ######################### Track Trade #############
     def track_trade(self):
@@ -131,13 +126,13 @@ class Main:
                 liquid_price = round(entry_price*1.005,2)
 
 
-            k = Strategy().condition(self.client)[0]
-            d = Strategy().condition(self.client)[1]
+            mom_k = Strategy().condition(self.client)
+            print(mom_k)
+            buy_condition1 = mom_k[-3] < 0 and mom_k[-2] > 0
+            sell_condition1 = mom_k[-3] > 0 and mom_k[-2] < 0
 
-            buy_condition1 = k[-3] < d[-3] and k[-2] > d[-2]
-            buy_condition2 = k[-3] > 25
-            sell_condition1 = k[-3] > d[-3] and k[-2] < d[-2]
-            sell_condition2 = k[-3] > 75
+            print(mom_k[-2])
+            print(mom_k[-3])
 
             ######
             time_list = []
@@ -148,8 +143,8 @@ class Main:
             
 
             # Specify the profit take and stop loss
-            end_condition = change < -1.5
-            if (side == 'BUY' and sell_condition1 and sell_condition2) or (side == 'SELL' and buy_condition1 and buy_condition2) or end_condition:
+            end_condition = change < -2
+            if (side == 'BUY' and sell_condition1) or (side == 'SELL' and buy_condition1) or end_condition:
                 self.end_trade()
                 print('Current trade ended with profit  of:', change, '%')
                 time.sleep(1.5)
@@ -164,8 +159,8 @@ class Main:
 
             else:
                 print('****************************************************')
-                print("position:{}, entry_price:{}, current_price:{}, liquidation_price:{}, position_size:{}, last_k > last_d:{}, k > d:{}".format(
-                    side, entry_price, last_price, liquid_price,position_size ,k[-3]>d[-3],k[-2]>d[-2] ))
+                print("position:{}, entry_price:{}, current_price:{}, liquidation_price:{}, position_size:{}, mom_k:{}".format(
+                    side, entry_price, last_price, liquid_price,position_size , mom_k[-2]))
                 print("Current trade profit: ", format(change, '2f'), "%")
 
     ######end trade###########
