@@ -148,13 +148,13 @@ class Kai:
         #     (dt.datetime.now() - dt.timedelta(days=5)).timestamp())
         # klines = (self.client.LinearKline.LinearKline_get(
         #     symbol="ETHUSDT", interval="60", **{'from': date_before}).result()[0]['result'])
-        # # final_df = pd.DataFrame(
-        # # columns=['open', 'high', 'low', 'close', 'volume', 'openinterest', 'datetime'])
         # df = pd.DataFrame(klines)
         # final_df = df[['open', 'high', 'low', 'close']]
-        # df = datetime.fromtimestamp(df[['open_time']])
-        # # df = df[['datetime','open', 'high', 'low', 'close', 'volume', 'openinterest']]
+        # final_df.index = pd.to_datetime(df['open_time'], unit='s',utc='8')
         # final_df.to_csv('mydf.csv')
 
-
+        list1= [{1},{2},{3}]
+        list2 = [{4},{5},{6}]
+        list3 = list1+list2
+        print(list3)
 Kai()
