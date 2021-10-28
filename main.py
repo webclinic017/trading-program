@@ -90,10 +90,15 @@ class Main:
                 if side == 'BUY':
                     entry_price = self.client.LinearPositions.LinearPositions_myPosition(
                         symbol="ETHUSDT").result()[0]['result'][0]['entry_price']
+                    buy_position = (self.client.LinearPositions.LinearPositions_myPosition(
+                        symbol="ETHUSDT").result()[0]['result'][0]['size'])
+                    position_size=buy_position
                 elif side == 'SELL':
                     entry_price = self.client.LinearPositions.LinearPositions_myPosition(
                         symbol="ETHUSDT").result()[0]['result'][1]['entry_price']
-
+                    sell_position = (self.client.LinearPositions.LinearPositions_myPosition(
+                        symbol="ETHUSDT").result()[0]['result'][1]['size'])
+                    position_size=sell_position
             except:
                 print('Timeout! Waiting for bybit to respond...')
                 time.sleep(120)
