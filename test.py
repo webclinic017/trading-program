@@ -1,3 +1,4 @@
+from typing import Counter
 from binance.client import Client
 from config import Connect
 from order import Order
@@ -7,7 +8,7 @@ import talib
 import time
 import pandas as pd
 import datetime as dt
-
+from strategy import Strategy
 
 class Kai:
     def __init__(self) -> None:
@@ -134,8 +135,6 @@ class Kai:
 
         # mom_k = talib.MOM(k,10)
 
-        
-
         # tstamp1=int(time_list[0])
         # tstamp2=int(dt.datetime.now().timestamp())
         # time1 = dt.datetime.fromtimestamp(tstamp1)
@@ -152,9 +151,84 @@ class Kai:
         # final_df = df[['open', 'high', 'low', 'close']]
         # final_df.index = pd.to_datetime(df['open_time'], unit='s',utc='8')
         # final_df.to_csv('mydf.csv')
+        # date_before = int(
+        #     (dt.datetime.now() - dt.timedelta(days=0.5)).timestamp())
+        # try:
+        #     # Change date and/or interval for different time frame
+        #     klines = (self.client.LinearKline.LinearKline_get(
+        #         symbol="ETHUSDT", interval="5", **{'from': date_before}).result()[0]['result'])
+        # except:
+        #     print('Timeout! Waiting for time binance to respond...')
+        #     time.sleep(120)
+        #     print('Trying to connect again...')
+        #     klines = (self.client.LinearKline.LinearKline_get(
+        #         symbol="ETHUSDT", interval="5", **{'from': date_before}).result()[0]['result'])
+        # close = []
+        # high = []
+        # low = []
 
-        list1= [{1},{2},{3}]
-        list2 = [{4},{5},{6}]
-        list3 = list1+list2
-        print(list3)
+        # for i in klines:
+        #     close.append(float(i['close']))
+        #     high.append(float(i['high']))
+        #     low.append(float(i['low']))
+
+        # close_arr = numpy.asarray(close)
+        # high_arr = numpy.asarray(high)
+        # low_arr = numpy.asarray(low)
+
+        # # k, d = talib.STOCH(high_arr, low_arr, close_arr, fastk_period=14, slowk_period=5, slowk_matype=0, slowd_period=5, slowd_matype=0)
+        # close_rsi = talib.RSI(close_arr, 14)
+        # max_rsi = talib.MAX(close_rsi, 14)
+        # min_rsi = talib.MIN(close_rsi, 14)
+        # stochrsi = (close_rsi - min_rsi)/(max_rsi - min_rsi)
+        # k = talib.SMA(stochrsi, 3)*100
+        # d = talib.SMA(k, 3)
+        # print(k,d)
+        # print(self.client.Market.Market_orderbook(symbol="ETHUSDT").result()[0]['result'][0]['price'])
+        # for i in range(50):
+        #     side = (self.client.Market.Market_orderbook(symbol="ETHUSDT").result()[0]['result'][i]['side'])
+        #     if(side=="Sell"):
+        #         print(i)
+        # print(self.client.Market.Market_orderbook(
+        #     symbol="ETHUSDT").result()[0]['result'][0]['price'])
+
+        # print(self.client.LinearOrder.LinearOrder_getOrders(symbol="ETHUSDT").result()[0]['result']['data'][3]['order_status'])
+        # order_status = self.client.LinearOrder.LinearOrder_getOrders(
+        #             symbol="ETHUSDT").result()[0]['result']['data'][0]['order_status']
+        # order_qty = self.client.LinearOrder.LinearOrder_getOrders(
+        #             symbol="ETHUSDT").result()[0]['result']['data'][0]['qty']
+        # sell_position = (self.client.LinearPositions.LinearPositions_myPosition(
+        #             symbol="ETHUSDT").result()[0]['result'][1]['size'])
+        # print(sell_position)
+        # print(order_qty)
+
+        #balance = self.client.Wallet.Wallet_getBalance(coin="USDT").result()[0]['result']['USDT']['equity']
+        #eth_last_price = float(self.client.LinearMarket.LinearMarket_trading(symbol="ETHUSDT").result()[0]['result'][0]['price'])
+        
+        ##### Extract Klines data 
+        # date_before = int((dt.datetime.now() - dt.timedelta(days = 60)).timestamp())
+        # klines=(self.client.LinearKline.LinearKline_get(symbol="ETHUSDT", interval="D", **{'from':date_before}).result()[0]['result'])
+        # close = []
+        # for i in klines:
+        #     close.append(float(i['close']))
+
+        # close_arr = numpy.asarray(close)
+        # close_rsi = talib.RSI(close_arr, 14)
+        # max_rsi = talib.MAX(close_rsi, 14)
+        # min_rsi = talib.MIN(close_rsi, 14)
+        # stochrsi = (close_rsi - min_rsi)/(max_rsi - min_rsi)
+        # k = talib.SMA(stochrsi, 3)*100
+        # d = talib.SMA(k, 3)
+        # buy_quantity = 0.2
+        # sell_quantity = 0.2
+        
+        # self.sell_quan = round(float(balance*50/eth_last_price*sell_quantity),2)
+        # self.buy_quan = round(float(balance*50/eth_last_price*buy_quantity),2)
+        # print(self.sell_quan)
+        k = Strategy().condition(self.client)[0]
+        d = Strategy().condition(self.client)[1]
+        print(k[-2])
+        print(d[-2])
+        # buy_condition1 = k[-3] <= d[-3] and k[-2] > d[-2] and (k[-3] < 10 or k[-4]<10)
+        # print(buy_condition1)    
 Kai()
